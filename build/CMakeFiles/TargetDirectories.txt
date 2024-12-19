@@ -1,4 +1,0 @@
-/home/trnhong193/Documents/BTL_HDH_20241/build/CMakeFiles/client.dir
-/home/trnhong193/Documents/BTL_HDH_20241/build/CMakeFiles/server.dir
-/home/trnhong193/Documents/BTL_HDH_20241/build/CMakeFiles/edit_cache.dir
-/home/trnhong193/Documents/BTL_HDH_20241/build/CMakeFiles/rebuild_cache.dir
