@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <filesystem>
 
-#define MAX_BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 1000
 
 // Hàm đệ quy liệt kê các file và thư mục trong thư mục hiện tại
 void list_files_recursive(const std::string& dir_path, int sock) {

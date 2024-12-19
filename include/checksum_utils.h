@@ -13,7 +13,7 @@ std::string calculate_checksum(const std::string& filename) {
     if (file == NULL) return "";
 
     MD5_Init(&mdContext);
-    unsigned char buffer[1024];
+    unsigned char buffer[1000];
     int bytes;
     while ((bytes = fread(buffer, 1, sizeof(buffer), file)) != 0) {
         MD5_Update(&mdContext, buffer, bytes);
