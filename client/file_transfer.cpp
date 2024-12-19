@@ -4,29 +4,58 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <filesystem>
+#include <cstring>
+#include <thread>          // For std::this_thread
+#include <chrono>          // For std::chrono
 #include "file_transfer.h" // Chứa các khai báo hàm
 
-#define MAX_BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 1000
 
 // Hàm liệt kê các file từ server
-void list_files(int sock) {
+void list_files(int sock)
+{
     char buffer[MAX_BUFFER_SIZE];
 
     // Gửi yêu cầu LIST đến server
     send(sock, "LIST", 4, 0);
 
-    // Nhận và hiển thị danh sách file từ server
-    int bytes_received = recv(sock, buffer, MAX_BUFFER_SIZE, 0);
-    if (bytes_received > 0) {
-        buffer[bytes_received] = '\0'; // Đảm bảo kết thúc chuỗi
-        std::cout << "Files on server:\n" << buffer << std::endl;
-    } else {
-        std::cout << "Failed to receive file list.\n";
+    // // Nhận và hiển thị danh sách file từ server
+    // int bytes_received = recv(sock, buffer, MAX_BUFFER_SIZE, 0);
+    // if (bytes_received > 0)
+    // {
+    //     buffer[bytes_received] = '\0'; // Đảm bảo kết thúc chuỗi
+    //     std::cout << "Files on server:\n"
+    //               << buffer << std::endl;
+    // }
+    // else
+    // {
+    //     std::cout << "Failed to receive file list.\n";
+    // }
+
+    int bytes_received;
+    while ((bytes_received = recv(sock, buffer, MAX_BUFFER_SIZE, 0)) > 0)
+    {
+        // if (bytes_received == 3 && strncmp(buffer, "EOF", 3) == 0)
+        // if (strncmp(buffer, "EOF", 3) == 0)
+        // {
+        //     std::cout << "receive EOF bytes." << std::endl;
+        //     break;
+        // }
+        std::string str_buffer(buffer);
+        std::cout << str_buffer;
+        // std::cout << "received: " << bytes_received << " bytes" << std::endl;
+
+        if (buffer[bytes_received - 1] == '\x1A')
+        {
+            std::cout << "receive EOF bytes." << std::endl;
+            break;
+        }
     }
 }
 
 // Hàm upload file từ client lên server
-void upload_file(int sock) {
+void upload_file(int sock)
+{
     std::string filepath;
     char buffer[MAX_BUFFER_SIZE];
     std::ifstream infile;
@@ -36,7 +65,8 @@ void upload_file(int sock) {
 
     // Mở file để đọc
     infile.open(filepath, std::ios::binary);
-    if (!infile) {
+    if (!infile)
+    {
         std::cerr << "Error: File does not exist or cannot be opened.\n";
         return;
     }
@@ -46,15 +76,18 @@ void upload_file(int sock) {
 
     // Gửi yêu cầu upload đến server
     std::string command = "UPLOAD " + filename;
-    if (send(sock, command.c_str(), command.length(), 0) == -1) {
+    if (send(sock, command.c_str(), command.length(), 0) == -1)
+    {
         std::cerr << "Error: Failed to send upload command.\n";
         infile.close();
         return;
     }
 
     // Đọc file và gửi dữ liệu theo chunk
-    while (infile.read(buffer, MAX_BUFFER_SIZE)) {
-        if (send(sock, buffer, infile.gcount(), 0) == -1) {
+    while (infile.read(buffer, MAX_BUFFER_SIZE))
+    {
+        if (send(sock, buffer, infile.gcount(), 0) == -1)
+        {
             std::cerr << "Error: Failed to send file data.\n";
             infile.close();
             return;
@@ -62,8 +95,10 @@ void upload_file(int sock) {
     }
 
     // Gửi phần còn lại của file (nếu có)
-    if (infile.gcount() > 0) {
-        if (send(sock, buffer, infile.gcount(), 0) == -1) {
+    if (infile.gcount() > 0)
+    {
+        if (send(sock, buffer, infile.gcount(), 0) == -1)
+        {
             std::cerr << "Error: Failed to send remaining file data.\n";
             infile.close();
             return;
@@ -71,9 +106,12 @@ void upload_file(int sock) {
     }
 
     // Gửi tín hiệu kết thúc file
-    if (send(sock, "EOF", 3, 0) == -1) {
+    if (send(sock, "EOF", 3, 0) == -1)
+    {
         std::cerr << "Error: Failed to send EOF signal.\n";
-    } else {
+    }
+    else
+    {
         std::cout << "Upload complete.\n";
     }
 
@@ -81,7 +119,9 @@ void upload_file(int sock) {
 }
 
 // Hàm download file từ server
-void download_file(int sock) {
+void download_file(int sock)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     std::string filename;
     char buffer[MAX_BUFFER_SIZE];
     std::ofstream outfile;
@@ -95,18 +135,35 @@ void download_file(int sock) {
 
     // Mở file để ghi
     outfile.open(filename, std::ios::binary);
-    if (!outfile) {
+    if (!outfile)
+    {
         std::cerr << "Error: Cannot create file for writing.\n";
         return;
     }
 
+    std::cout << "start." << std::endl;
+
     // Nhận và ghi dữ liệu từ server
     int bytes_received;
-    while ((bytes_received = recv(sock, buffer, MAX_BUFFER_SIZE, 0)) > 0) {
-        if (bytes_received == 3 && strncmp(buffer, "EOF", 3) == 0) {
+    int count = 0;
+    while ((bytes_received = recv(sock, buffer, MAX_BUFFER_SIZE, 0)) > 0)
+    {
+        // if (bytes_received == 3 && strncmp(buffer, "EOF", 3) == 0)
+        // if (strncmp(buffer, "EOF", 3) == 0)
+        // {
+        //     std::cout << "receive EOF bytes." << std::endl;
+        //     break;
+        // }
+        outfile.write(buffer, bytes_received);
+        // std::cout << "doing. " << count << std::endl;
+        std::cout << "received: " << bytes_received << " bytes" << std::endl;
+        count++;
+
+        if (buffer[bytes_received - 1] == '\x1A')
+        {
+            std::cout << "receive EOF bytes." << std::endl;
             break;
         }
-        outfile.write(buffer, bytes_received);
     }
 
     std::cout << "Download complete.\n";
