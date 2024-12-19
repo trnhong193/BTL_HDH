@@ -7,9 +7,9 @@
 #include "file_transfer.h"
 #include "checksum_utils.h"
 
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 8080
-#define CHUNK_SIZE 1024
+#define SERVER_IP "192.168.0.129"
+#define SERVER_PORT 18080
+#define CHUNK_SIZE 1000
 
 void print_menu() {
     std::cout << "\nClient Menu:\n";

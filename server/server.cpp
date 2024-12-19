@@ -10,13 +10,13 @@
 #include <dirent.h>
 #include <fcntl.h>
 
-#define PORT 8080
+#define PORT 18080
 #define MAX_CLIENTS 10
-#define CHUNK_SIZE 1024
+#define CHUNK_SIZE 1000
 
 void* handle_client(void* client_sock) {
     int sock = *(int*)client_sock;
-    char buffer[1024];
+    char buffer[1000];
     int n;
 
     while ((n = recv(sock, buffer, sizeof(buffer), 0)) > 0) {
