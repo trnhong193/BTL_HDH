@@ -1,0 +1,4 @@
+FILE: /home/trnhong193/Documents/BTL_HDH_20241/uploads/test1.txt
+DIR: /home/trnhong193/Documents/BTL_HDH_20241/uploads/huhu
+FILE: /home/trnhong193/Documents/BTL_HDH_20241/uploads/huhu/test4.txt
+FILE: /home/trnhong193/Documents/BTL_HDH_20241/uploads/huhu/test3.txt
